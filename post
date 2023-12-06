@@ -1,0 +1,1 @@
+curl -v -X POST http://localhost:4000/orders/new -H "Content-Type: application/json" -d '{"order": {"id": "104fd7e0-a188-4ffd-9af7-20d7876f70ab", "paid": 10000, "currency": "jpy"}, "customer": {"email": "exampple@lunaris.jp", "phone": null}}'
