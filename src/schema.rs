@@ -6,6 +6,7 @@ pub struct OrderSchema{
     pub paid: usize,
     pub currency: String,
     pub customer_email: String,
+    pub percentage: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

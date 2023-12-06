@@ -1,0 +1,8 @@
+Running 30s test @ http://localhost:4000/user/example@lunaris.jp/balance
+  12 threads and 100 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    14.77ms    1.26ms  27.40ms   77.66%
+    Req/Sec   543.92     36.53   646.00     81.31%
+  195241 requests in 30.06s, 33.52MB read
+Requests/sec:   6495.24
+Transfer/sec:      1.11MB

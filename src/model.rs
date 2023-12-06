@@ -3,7 +3,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 pub struct Order {
     pub id: String,
-    pub paid: u64,
+    pub paid: i64,
     pub currency: String,
 }
 

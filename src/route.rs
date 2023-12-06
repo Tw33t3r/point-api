@@ -1,11 +1,10 @@
 use crate::{
-    model::{Customer, CustomerOrder, ModificationParams, Order, RewardParams},
-    schema::{CustomerSchema, OrderSchema},
+    model::{CustomerOrder, ModificationParams},
+    schema::CustomerSchema,
     AppState,
 };
 
 use actix_web::{get, post, web, HttpResponse, Responder, Result};
-use serde::Deserialize;
 use serde_json::json;
 use sqlx::{Pool, Sqlite};
 
@@ -101,8 +100,7 @@ pub async fn post_add_points(
                     return HttpResponse::Ok().json(points);
                 }
                 Err(e) => {
-                    return HttpResponse::InternalServerError()
-                        .json(json!({"status": "error","message": format!("{:?}", e)}));
+                    return e.error_response();
                 }
             }
         }
@@ -136,14 +134,12 @@ pub async fn post_sub_points(
                     return HttpResponse::Ok().json(points);
                 }
                 Err(e) => {
-                    return HttpResponse::InternalServerError()
-                        .json(json!({"status": "error","message": format!("{:?}", e)}));
+                    return e.error_response();
                 }
             }
         }
         Err(e) => {
-            return HttpResponse::InternalServerError()
-                .json(json!({"status": "error","message": format!("{:?}", e)}));
+            return e.error_response();
         }
     };
 }
@@ -161,9 +157,9 @@ pub async fn post_new_order(
         percentage = reward.amount;
     }
     let points = percentage * customer_order.order.paid as f64;
-    
-    let query_result =
-        sqlx::query(r#"INSERT INTO customer (email,phone, points) VALUES (?, ?, ?)"#)
+
+    let customer_query_result =
+        sqlx::query(r#"INSERT INTO customers (email,phone, points) VALUES (?, ?, ?)"#)
             .bind(&customer.email)
             .bind(customer.phone)
             .bind(points)
@@ -171,17 +167,47 @@ pub async fn post_new_order(
             .await
             .map_err(|err: sqlx::Error| err.to_string());
 
-    if let Err(err) = query_result {
-        if err.contains("Duplicate entry") {
-            //TODO Add balance to user
-            return HttpResponse::BadRequest().json(
-            serde_json::json!({"status": "fail","message": "Note with that title already exists"}),
-        );
+    if let Err(err) = customer_query_result {
+        //TODO This error code is sqlite specific
+        if err.contains("UNIQUE constraint failed") {
+            // User exists, update user balance
+            let balance_result = get_balance(&customer.email, &data.db).await;
+            match balance_result {
+                Ok(user_balance) => {
+                    let total = points.round() as i64 + user_balance;
+                    let set_result = set_points(&customer.email, total, &data.db).await;
+                    match set_result {
+                        Ok(_) => (),
+                        Err(e) => {
+                            return e.error_response();
+                        }
+                    }
+                }
+                Err(e) => {
+                    return e.error_response();
+                }
+            };
+        } else {
+            //Some other error
+            return HttpResponse::InternalServerError()
+                .json(serde_json::json!({"status": "error","message": format!("{:?}", err)}));
         }
+    }
 
+    let order_query_result =
+        sqlx::query(r#"INSERT INTO orders (id, paid, currency, percentage, customerEmail) VALUES (?, ?, ?, ?, ?)"#)
+            .bind(&order.id)
+            .bind(order.paid)
+            .bind(&order.currency)
+            .bind(percentage)
+            .bind(&customer.email)
+            .execute(&data.db)
+            .await
+            .map_err(|err: sqlx::Error| err.to_string());
+    if let Err(err) = order_query_result {
         return HttpResponse::InternalServerError()
             .json(serde_json::json!({"status": "error","message": format!("{:?}", err)}));
     }
-    //TODO add order
+
     HttpResponse::Ok().json(points.to_string())
 }

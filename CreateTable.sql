@@ -1,19 +1,20 @@
 CREATE TABLE IF NOT EXISTS `orders`(
-  `id` TEXT NOT NULL,
-  `amount` INTEGER NOT NULL,
+  `id` TEXT PRIMARY KEY NOT NULL,
+  `paid` INTEGER NOT NULL,
   `currency` TEXT NOT NULL,
   `customerEmail` TEXT NOT NULL,
+  `percentage` INTEGER,
   FOREIGN KEY(customerEmail) REFERENCES customers(email)
 );
 
 CREATE TABLE IF NOT EXISTS `customers`(
-  `email` TEXT NOT NULL,
+  `email` TEXT PRIMARY KEY NOT NULL,
   `phone` TEXT,
   `points` INTEGER NOT NULL
 );
 
 
-INSERT INTO customers(email, points)
+INSERT INTO `customers`(email, points)
 VALUES('camenisch@hotmail.com', 123333),
 ('padme@msn.com',123333),
 ('seanq@icloud.com',123333),
