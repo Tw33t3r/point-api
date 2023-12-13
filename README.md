@@ -45,46 +45,58 @@ Same as add, but subtracts
 
 ## Performance
 Performance metrics were gathered using wrk to spawn concurrent connections and gather data regarding latency and requests/second on development machine.
-In the future I'd prefer running metrics on an online for more realistic conditions.
-I'd like to gather metrics on the Post routes as well 
+The server was hosted on an AWS ec2 t2.micro instance, with a ping of about 15ms from the consuming machine.
+The get balance endpoint was selected 
+I'd like to gather metrics on the Post routes in the future as well 
+
 
 ### 100 concurrent connections
 | Thread Stats       | Avg     | Stdev  | Max     | +/- Stdev |
 |--------------------|---------|--------|---------|-----------|
-| Latency            | 14.77ms | 1.26ms | 27.40ms | 77.66%    |
-| Req/Sec            | 543.92  | 36.53  | 646.00  | 81.31%    |
+| Latency            | 12.86ms | 4.41ms | 247.75ms| 95.59%    |
+| Req/Sec            | 629.56 | 56.11   | 750.00  | 73.92%    |
 
 | Total Stats        |         |
 |--------------------|---------|
-| Requests/Sec       | 6495.24 |
-| Transfer/Sec       | 1.11MB  |
+| Requests/Sec       | 7516.09 |
+| Transfer/Sec       | 1.28MB  |
 
 ### 400 concurrent connections
 | Thread Stats       | Avg     | Stdev  | Max     | +/- Stdev |
 |--------------------|---------|--------|---------|-----------|
-| Latency            | 64.64ms | 4.79ms | 114.92ms|   82.71%  |
-| Req/Sec            | 512.35  |  64.87 |  750.00 |   72.19%  |
+| Latency            | 30.38ms|4.63ms | 198.84ms|   97.11%|
+| Req/Sec            | 659.88|  401.02| 1.21k|   54.44%|
 
 | Total Stats        |         |
 |--------------------|---------|
-| Requests/Sec       | 6123.35 |
-| Transfer/Sec       | 1.05MB  |
+| Requests/Sec       |  7842.91|
+| Transfer/Sec       | 1.33MB  |
 
 ### 1000 concurrent connections
 | Thread Stats       | Avg     | Stdev  | Max     | +/- Stdev |
 |--------------------|---------|--------|---------|-----------|
-| Latency            |167.54ms | 14.46ms| 210.10ms|  86.14%   |
-| Req/Sec            | 473.05  | 221.83 |   2.06k |  61.77%   |
+| Latency            | 29.93ms | 4.60ms| 327.81ms |  95.36%   |
+| Req/Sec            | 786.19  | 606.29 |2.10k    |49.43%     |
 
 | Total Stats        |         |
 |--------------------|---------|
-| Requests/Sec       |  5642.32|
-| Transfer/Sec       | 0.97MB  |
+| Requests/Sec       |7786.11  |
+| Transfer/Sec       |1.32MB   |
+
+### 2000 concurrent connections
+| Thread Stats       | Avg     | Stdev  | Max     | +/- Stdev |
+|--------------------|---------|--------|---------|-----------|
+| Latency            |30.33ms  |4.79ms  |326.26ms |96.52%     |
+| Req/Sec            |0.99k    |765.34  |2.38k    |52.32      |
+
+| Total Stats        |         |
+|--------------------|---------|
+| Requests/Sec       |7812.66  |
+| Transfer/Sec       |1.33MB   |
 
 ## TODO
 - Add authentication to set/checkbalance routes and rewardparameters.
 - Add proper batching to sql statements- Add proper testing to check routes are robust
-- Run performance tests on a linode server to simulate more realistic conditions
 - Sqlite was used for quick development and making it easy to setup testing. Databases are parameterized in such a way that it is simple to change to postgres
 - A discussion should be had as to how multiple table additions should be managed. I generally try to structure endpoints so that a single POST leads to a single table being added when possible. But in this case I added multiple endpoints for simplicity's sake.
 - I'd prefer not to use email as the cannonical user id, but it looks like that's the structure for the data given, so I left it as is.
