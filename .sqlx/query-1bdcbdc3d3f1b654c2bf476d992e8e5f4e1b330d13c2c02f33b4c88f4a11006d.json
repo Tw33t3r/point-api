@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE customers SET points = ? WHERE email = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "1bdcbdc3d3f1b654c2bf476d992e8e5f4e1b330d13c2c02f33b4c88f4a11006d"
+}
