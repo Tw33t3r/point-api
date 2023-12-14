@@ -30,13 +30,13 @@ jobs:
 
 
     - name: Auto Comment
-      uses: actions/github-script@v6
-      with: 
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: Performance metrics for this code are: ```${{ steps.run_perf.outputs.perf_out }}```
-              })
+      env:
+        URL: ${{ github.event.issue.comments_url }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+          curl \
+            -X POST \
+            $URL \
+            -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            --data '{ "body": "Performance metrics for this code are: ${{ steps.run_perf.outputs.perf_out }}" }'
