@@ -30,11 +30,13 @@ jobs:
 
 
     - name: Auto Comment
-      uses: bubkoo/auto-comment@v1
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        pullRequestOpened: >
-          Performance for this code is:      
-          ```
-          ${{ steps.run_perf.outputs.perf_out }}
-          ```
+      uses: actions/github-script@v6
+      with: 
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: Performance metrics for this code are: ```${{ steps.run_perf.outputs.perf_out }}```
+              })
