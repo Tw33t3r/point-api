@@ -25,7 +25,7 @@ jobs:
       shell: bash
       run: cargo run -- ./point.sqlite &
            sleep 5 &&
-           wrk -t12 -c100 -d30 http://localhost:4000/user/example@lunaris.jp/balance
+           perf=$(wrk -t12 -c100 -d30 http://localhost:4000/user/example@lunaris.jp/balance)
 
     - name: Auto Comment
       uses: bubkoo/auto-comment@v1
@@ -34,5 +34,5 @@ jobs:
         pullRequestOpened: >
           Performance for this code is:      
           ```
-          ${{ steps.run_perf.outputs.delta_code }}
+          ${{ steps.run_perf.outputs.perf }}
           ```
