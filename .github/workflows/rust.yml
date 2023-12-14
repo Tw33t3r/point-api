@@ -26,14 +26,18 @@ jobs:
       run: cargo run -- ./point.sqlite &
            sleep 5 &&
            perf=$(wrk -t12 -c100 -d30 http://localhost:4000/user/example@lunaris.jp/balance) &&
-           echo echo "{perf_out}={perf}" >> $GITHUB_OUTPUT
+           echo "::set-output name=perf_out::$perf"
 
 
     - name: Auto Comment
+      env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           curl \
             -X POST \
-            ${{ github.event.issue.comments_url }} \
+            https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments \
             -H "Content-Type: application/json" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }} \
+            -H "Authorization: token  $GITHUB_TOKEN\
             --data '{ "body": "Performance metrics for this code are: ${{ steps.run_perf.outputs.perf_out }}" }'
